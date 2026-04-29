@@ -279,12 +279,38 @@ public class GlslTransformerVertPatcher {
         }
 
         if(context.getUseLightLut()) {
-            createVertexBuilder.append("""
-                    FlwLightAo _flw_light;
-                    flw_light(flw_vertexPos.xyz, flw_vertexNormal, _flw_light);
-                    flw_vertexLight = max(flw_vertexLight, _flw_light.light);
-                    _flw_ao = _flw_light.ao;
-                    """);
+            createVertexBuilder.append("_flw_ao = 1.0;\n");
+
+            if (context.usesSceneAwareLightApi()) {
+                createVertexBuilder.append("""
+                        FlwLightAo _flw_light;
+                        uint _flw_sceneId = 0u;
+                        vec3 _flw_lightingPos = flw_vertexPos.xyz;
+                        ivec3 _flw_renderOrigin = _flw_renderOrigin.xyz;
+                        #ifdef FLW_EMBEDDED
+                        _flw_sceneId = flw_vertexLightingSceneId;
+                        _flw_lightingPos = flw_vertexLightingPos.xyz;
+                        if (_flw_sceneId != 0u) {
+                            _flw_renderOrigin = ivec3(0);
+                        }
+                        #endif
+                        if (flw_light(_flw_sceneId, _flw_lightingPos, flw_vertexNormal, _flw_renderOrigin, _flw_light)) {
+                            flw_vertexLight = max(flw_vertexLight, _flw_light.light);
+                            _flw_ao = _flw_light.ao;
+                            #ifdef FLW_EMBEDDED
+                            flw_vertexLight.y *= flw_skyLightScale;
+                            #endif
+                        }
+                        """);
+            } else {
+                createVertexBuilder.append("""
+                        FlwLightAo _flw_light;
+                        if (flw_light(flw_vertexPos.xyz, flw_vertexNormal, _flw_light)) {
+                            flw_vertexLight = max(flw_vertexLight, _flw_light.light);
+                            _flw_ao = _flw_light.ao;
+                        }
+                        """);
+            }
         }
 
         createVertexBuilder.append("\n}");
@@ -361,6 +387,10 @@ public class GlslTransformerVertPatcher {
         {
             return !isShadow && (isEmbedded && lightShader == LightShaders.SMOOTH_WHEN_EMBEDDED
                     || lightShader == LightShaders.FLAT || lightShader == LightShaders.SMOOTH);
+        }
+
+        public boolean usesSceneAwareLightApi() {
+            return flwVertexTemplate.contains("bool flw_light(uint");
         }
 
         public ContextParameter(String flwVertexTemplate, boolean isShadow, boolean isEmbedded, LightShader lightShader, boolean isExtendedVertexFormat) {

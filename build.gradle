@@ -85,12 +85,16 @@ dependencies {
     compileOnly("dev.engine-room.flywheel:flywheel-neoforge-${flywheel_minecraft_version}:${flywheel_neoforge_version}")
     compileOnly("maven.modrinth:iris:${iris_version}-neoforge")
     compileOnly("com.simibubi.create:create-${minecraft_version}:${create_version}") { transitive = false }
+    compileOnly("maven.modrinth:sable:${sable_version}")
+    compileOnly("maven.modrinth:create-aeronautics:${create_aeronautics_version}")
     compileOnly("net.createmod.ponder:ponder-neoforge:${ponder_version}+mc${minecraft_version}")
 
     runtimeOnly("io.github.douira:glsl-transformer:2.0.1")
     runtimeOnly("maven.modrinth:iris:${iris_version}-neoforge")
     runtimeOnly("maven.modrinth:sodium:${sodium_version}-neoforge")
     runtimeOnly("com.simibubi.create:create-${minecraft_version}:${create_version}") { transitive = false }
+    runtimeOnly("maven.modrinth:sable:${sable_version}")
+    runtimeOnly("maven.modrinth:create-aeronautics:${create_aeronautics_version}")
     runtimeOnly("net.createmod.ponder:ponder-neoforge:${ponder_version}+mc${minecraft_version}")
     runtimeOnly("dev.engine-room.flywheel:flywheel-neoforge-${flywheel_minecraft_version}:${flywheel_neoforge_version}")
     runtimeOnly("com.tterrag.registrate:Registrate:${registrate_version}")
